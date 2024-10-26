@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recetas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Recetas</h1>
+  
+  <!-- Formulario para agregar nuevas recetas -->
+  <form id="nueva-receta-form">
+    <input type="text" id="nombre" placeholder="Nombre de la receta" required>
+    <textarea id="descripcion" placeholder="Descripción de la receta" required></textarea>
+    <button type="submit">Agregar Receta</button>
+  </form>
+
+  <div id="recetas-container"></div>
+  
+  <script src="scripts.js"></script>
+</body>
+</html>
