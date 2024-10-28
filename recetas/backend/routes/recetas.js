@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
 
+// Configuración de la conexión a la base de datos
 const connection = mysql.createConnection({
   host: '127.0.0.1',
   user: 'root',
@@ -26,30 +27,47 @@ router.get('/', (req, res) => {
   });
 });
 
-// Crear una nueva receta
+// Agregar una nueva receta
 router.post('/', (req, res) => {
   const { nombre, descripcion } = req.body;
-  connection.query('INSERT INTO recetas (nombre, descripcion, votos) VALUES (?, ?, 0)', [nombre, descripcion], (error, results) => {
+  connection.query('INSERT INTO recetas (nombre, descripcion) VALUES (?, ?)', [nombre, descripcion], (error, results) => {
     if (error) throw error;
-    res.status(201).json({ id: results.insertId, nombre, descripcion, votos: 0 });
+    res.status(201).json({ id: results.insertId, nombre, descripcion });
   });
 });
 
-// Alternar estado de favorita
-router.put('/:id/favorita', (req, res) => {
-  const { id } = req.params;
-  connection.query('UPDATE recetas SET es_favorita = NOT es_favorita WHERE id = ?', [id], (error) => {
-    if (error) throw error;
-    res.sendStatus(204);
-  });
-});
-
-// Votar por una receta
+// Votar una receta
 router.put('/:id/votar', (req, res) => {
-  const { id } = req.params;
-  connection.query('UPDATE recetas SET votos = votos + 1 WHERE id = ?', [id], (error) => {
+  const id = parseInt(req.params.id);
+  connection.query('SELECT * FROM recetas WHERE id = ?', [id], (error, results) => {
     if (error) throw error;
-    res.sendStatus(204);
+    if (results.length > 0) {
+      const receta = results[0];
+      connection.query('UPDATE recetas SET votos = votos + 1 WHERE id = ?', [id], (error) => {
+        if (error) throw error;
+        res.json({ ...receta, votos: receta.votos + 1 });
+      });
+    } else {
+      res.status(404).send('Receta no encontrada');
+    }
+  });
+});
+
+// Marcar una receta como favorita
+router.put('/:id/favorita', (req, res) => {
+  const id = parseInt(req.params.id);
+  connection.query('SELECT * FROM recetas WHERE id = ?', [id], (error, results) => {
+    if (error) throw error;
+    if (results.length > 0) {
+      const receta = results[0];
+      const nueva_favorita = !receta.es_favorita;
+      connection.query('UPDATE recetas SET es_favorita = ? WHERE id = ?', [nueva_favorita, id], (error) => {
+        if (error) throw error;
+        res.json({ ...receta, es_favorita: nueva_favorita });
+      });
+    } else {
+      res.status(404).send('Receta no encontrada');
+    }
   });
 });
 

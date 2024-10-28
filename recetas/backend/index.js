@@ -1,15 +1,18 @@
 const express = require('express');
-const path = require('path');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 const recetasRouter = require('./routes/recetas');
 
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
-
+// Configurar CORS para permitir solicitudes desde cualquier origen
+app.use(cors());
 app.use(express.json());
 app.use('/recetas', recetasRouter);
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor escuchando en http://0.0.0.0:${port}`);
+app.get('/', (req, res) => {
+  res.send('Bienvenido a la API de Recetas');
+});
+
+app.listen(port, () => {
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
